@@ -20,6 +20,7 @@ compose_service_running() {
 
 # copy docker volume data to temp dir
 # usage: copy_volume volume_name target_subdir
+
 copy_volume() {
   local volume="$1"
   local target="$2"
@@ -28,10 +29,12 @@ copy_volume() {
   local dst="${TMP_DIR}/${target}"
 
   if [ ! -d "$src" ]; then
-    echo "⚠️ volume not found: $volume"
+    log "⚠️ volume not found: $volume"
     return 0
   fi
 
   mkdir -p "$dst"
-  rsync -a --delete "$src/" "$dst/"
+
+  rsync -a --numeric-ids --delete \
+    "$src/" "$dst/"
 }
