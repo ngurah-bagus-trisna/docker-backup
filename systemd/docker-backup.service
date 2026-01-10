@@ -1,0 +1,8 @@
+[Unit]
+Description=Docker Backup Service
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /path/ke/script/lu/backup.sh
+User=root
