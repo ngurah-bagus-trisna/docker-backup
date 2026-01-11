@@ -101,7 +101,9 @@ If you need to restore specific files without the script:
 
 * **List all snapshots:** `restic snapshots`
 * **Browse files in a snapshot:** `restic ls <SNAPSHOT_ID>`
-* **Restore a specific folder:** ```bash
+* **Restore a specific folder:** 
+
+```bash
 restic restore <SNAPSHOT_ID> --target /tmp/recovery --include "/projects/my-app"
 ```
 
