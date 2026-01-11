@@ -70,7 +70,7 @@ dump_mysql() {
   mkdir -p "$dst"
   log "🛢️ [MySQL] Dumping database for $name"
   
-  docker exec -T "$cid" sh -c 'mysqldump -u"${MYSQL_USER:-root}" -p"${MYSQL_PASSWORD:-$MYSQL_ROOT_PASSWORD}" --all-databases' > "$dst/dump.sql"
+  docker exec "$cid" sh -c 'mysqldump -u"${MYSQL_USER:-root}" -p"${MYSQL_PASSWORD:-$MYSQL_ROOT_PASSWORD}" --all-databases' > "$dst/dump.sql"
 }
 
 dump_postgres() {
@@ -80,7 +80,8 @@ dump_postgres() {
   mkdir -p "$dst"
   log "🐘 [Postgres] Dumping database for $name"
   
-  docker exec -T "$cid" sh -c 'pg_dumpall -U "${POSTGRES_USER:-postgres}"' > "$dst/dump.sql"
+  docker exec "$cid" sh -c 'pg_dumpall -U "${POSTGRES_USER:-postgres}"' > "$dst/dump.sql"
+  
 }
 
 # --- Decision Engine ---
