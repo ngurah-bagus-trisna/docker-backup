@@ -1,4 +1,3 @@
-Since you're managing professional IT infrastructure and looking for a 
 # 🐳 Docker Label-Based Backup (Restic Edition)
 
 > by nb.trisna + gemini :)
@@ -18,6 +17,7 @@ This is a modular Bash-based backup solution designed for Docker environments. I
 ```text
 docker-backup/
 ├── backup.sh          # Entrypoint script
+├── restore.sh         # Restoration & DR script
 ├── config.sh          # Path & Repository configurations
 ├── README.md          # Documentation
 └── lib/
@@ -40,12 +40,12 @@ Ensure the following tools are installed on your host:
 
 1. **Restic Password**:
 Create a password file to allow non-interactive backups:
+
 ```bash
 echo "your_secure_password" > /etc/restic.pass
 chmod 600 /etc/restic.pass
 
 ```
-
 
 2. **Configure Paths**:
 Open `config.sh` and set your `BACKUP_ROOT`. If you are using Rclone, ensure your GDrive is mounted at this path or modify `restic.sh` to use the `rclone:remote:path` syntax.
@@ -63,37 +63,7 @@ To include a container in the backup, add labels to your `docker-compose.yml`:
 | `backup.type` | `mysql` | Executes `mysqldump` inside the container. |
 | `backup.type` | `postgres` | Executes `pg_dumpall` inside the container. |
 
-### Example Implementations
-
-#### 1. Traefik (Configs & Bind Mounts)
-
-Traefik usually relies on local files. Because the script detects the `working_dir`, it will grab everything in the folder.
-
-```yaml
-services:
-  traefik:
-    image: traefik:v2.10
-    volumes:
-      - ./certs:/certs
-      - ./provider.yaml:/etc/traefik/provider.yaml
-    labels:
-      - "backup.enable=true"
-
-```
-
-#### 2. Database (Logical Dump)
-
-```yaml
-services:
-  db:
-    image: mariadb:10.11
-    environment:
-      - MYSQL_ROOT_PASSWORD=my-secret
-    labels:
-      - "backup.enable=true"
-      - "backup.type=mysql"
-
-```
+---
 
 ## 🏃 Running the Backup
 
@@ -111,6 +81,51 @@ Run every day at 2 AM:
 0 2 * * * /opt/docker-backup/backup.sh >> /var/log/docker-backup.log 2>&1
 
 ```
+
+---
+
+## 🔄 Restoration & Recovery
+
+### 1. Using the Automated Script
+
+The `restore.sh` script is designed for quick recovery. It will list all snapshots and let you choose which one to restore.
+
+```bash
+sudo ./restore.sh
+
+```
+
+### 2. Manual Recovery (The "Swiss Army Knife")
+
+If you need to restore specific files without the script:
+
+* **List all snapshots:** `restic snapshots`
+* **Browse files in a snapshot:** `restic ls <SNAPSHOT_ID>`
+* **Restore a specific folder:** ```bash
+restic restore <SNAPSHOT_ID> --target /tmp/recovery --include "/projects/my-app"
+```
+
+
+```
+
+
+
+### 3. Disaster Recovery (Fresh Machine)
+
+If your server is gone and you are starting on a new one:
+
+1. **Install dependencies**: Docker, Restic, and Rclone.
+2. **Mount your Storage**: Mount your Google Drive via Rclone to the path defined in `config.sh`.
+3. **Run Restore**: Execute `./restore.sh` to pull all files to a temporary directory.
+4. **Re-deploy**:
+* Move the restored project folders to their original locations.
+* Start the database container.
+* Import the SQL dump: `docker exec -i <db_container> mysql -u root -p < restored_dump.sql`.
+* Run `docker-compose up -d`.
+
+
+
+---
 
 ## 🛡️ Disaster Recovery (DR) Layout
 
