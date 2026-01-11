@@ -108,10 +108,6 @@ restic restore <SNAPSHOT_ID> --target /tmp/recovery --include "/projects/my-app"
 ```
 
 
-```
-
-
-
 ### 3. Disaster Recovery (Fresh Machine)
 
 If your server is gone and you are starting on a new one:
