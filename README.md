@@ -86,6 +86,16 @@ Run every day at 2 AM:
 
 ## 🔄 Restoration & Recovery
 
+### Add `r-check` to manage restic
+
+```sh
+export REPO="rclone:<your-config>:backup-docker"
+export PW="/etc/restic.pass"
+
+# Alias untuk mempermudah
+alias r-check="restic -r $REPO -p $PW"
+```
+
 ### 1. Using the Automated Script
 
 The `restore.sh` script is designed for quick recovery. It will list all snapshots and let you choose which one to restore.
